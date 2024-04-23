@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 FIRST_STATE = 1
 SECOND_STATE = 2
 TRIES = 5
-
+WEBSITE = 'https://prism-colorful-engineer.glitch.me'
 
 def create_hints(word, entry):
     try:
@@ -30,11 +30,11 @@ def create_hints(word, entry):
 
 
 def add_points(email, success):
-    requests.post(f'http://127.0.0.1:5000/api/users/{email}', json={'success': success})
+    requests.post(f'{WEBSITE}/api/users/{email}', json={'success': success})
 
 
 async def start(update, context):
-    response = requests.get('http://127.0.0.1:5000/api/random_word').json()
+    response = requests.get(f'{WEBSITE}/api/random_word').json()
     hints = create_hints(response['word'], response['entry'])
     while not hints:
         hints = create_hints(response['word'], response['entry'])
@@ -48,7 +48,7 @@ async def start(update, context):
         await context.bot.send_photo(update.message.chat_id, photo=open('img/bot.png', 'rb'))
         await update.message.reply_text('Please, enter the email address which you used for registration!')
         await update.message.reply_html(rf'''If you haven't signed up at the website yet, you can do it
-<a href="http://127.0.0.1:5000/register">here</a> ^^''')
+<a href="{WEBSITE}/register">here</a> ^^''')
         return FIRST_STATE
     else:
         await update.message.reply_html("Let's play again! Waiting for your guess...")
@@ -56,7 +56,7 @@ async def start(update, context):
 
 
 async def login(update, context):
-    if 'message' in requests.get(f'http://127.0.0.1:5000/api/users/{update.message.text}').json():
+    if 'message' in requests.get(f'{WEBSITE}/api/users/{update.message.text}').json():
         await update.message.reply_text('Sorry, we do not have a user with this email address :(')
     else:
         context.user_data['email'] = update.message.text
